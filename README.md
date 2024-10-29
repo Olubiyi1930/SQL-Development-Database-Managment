@@ -1,1 +1,1 @@
-# SQL-Development-Database-Managment
+# SQL Development & Database Managment
