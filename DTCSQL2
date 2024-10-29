@@ -1,0 +1,168 @@
+--- Student Name: Oluwatosin Adebiyi ---
+---	SQL Development & Database Management Project --- 
+
+
+---QUESTION 1--- What is the customer name, country, age and city for only customers that live in the state of California and
+--are over 25 years for the consumer segment. Sort the result by age in asc order.--
+select *
+	customer_name,
+	country,
+	age,
+	city
+from customer
+where state = 'California' 
+and age > 25 
+and segment = 'Consumer'
+order by age;
+
+
+
+--- QUESTION 2--- customers by segment do we have
+select 
+	count (customer_id),
+	segment
+from customer
+group by 2;
+
+
+
+---Question 3--- Write a query to categorize profit that are below 100 as 
+--Low Margin, within the range of 100 - 300 as Mid Margin 
+--then every other profit that don’t fall in either of but categories as High
+
+select 
+	profit,
+case
+	when profit < 100 then 'Low Margin'
+	when profit between 100 and 300 then 'Mid Margin'
+	Else 'High'
+End
+from sales;
+
+
+---Question 4--- Write a query to categorize second class ship_mode as 2 days shipment,first class ship_mode as 1 day air,
+--display the count of customer_id for all orders shipped out in september and october 2017. 
+--Display the result for only the top 20 rows.
+
+select 
+	count(customer_id),
+	ship_mode,
+	ship_date,
+case
+	when ship_mode = 'Second Class' then '2_days shipment'
+	when ship_mode = 'First Class' then '1_day air'
+End
+FROM sales
+WHERE ship_date between '2017-09-01' and '2017-09-31'
+AND ship_date between '2017-10-01' and '2017-10-31'
+group by 2,3
+limit 20;
+
+
+
+----QUESTION 5-- What is the total number of orders that were not shipped with first class and standard class. 
+--Sort the result by the ship mode.--
+
+select 
+	count(order_id),
+	ship_mode
+from sales
+where ship_mode not in ('First Class')
+and ship_mode not in ('Standard Class')
+group by ship_mode
+order by ship_mode;
+
+
+
+---Question 6--- Write a query to show the ship mode, ship_date, total sales, profits and 
+--order quantity for all orders that were shipped the earliest. ---(CHECKK)
+
+select 
+	MIN(ship_date),
+	SUM(sales) as total_sales,
+	ship_mode,
+	profit,
+	quantity
+from sales
+group by 3,4,5;
+
+
+
+----Question 7--- Write a query that returns all the orders that are above 
+--1000 in sales, from only first class ship mode and are shipped between may and june 2015
+ 
+select 
+ 	sales,
+	ship_mode,
+	ship_date
+from sales
+where sales > 1000
+and ship_mode = 'First Class'
+and ship_date between '2015-05-01' and '2015-06-30'
+
+
+
+---QUESTION 8--- Write a query for the top 10 orders by fetching----
+--customer name, age, state, total sales, total profit,product category and sub category for only orders
+--placed in 2016 in all states excluding Florida & Utah. --extract(year from order_date)--
+
+select 
+	customer.customer_name,
+	customer.age,
+	customer.state,
+	sum(sales.sales) as total_sales,
+	sum(sales.profit) as total_profit,
+	product.category,
+	product.sub_category
+from customer as c
+inner join sales as s
+on customer.customer_id = sales.customer_id
+inner join product as p
+on product.product_id = sales.product_id
+where order_date between '2016-01-01' and '2016-12-31'
+and state not in ('Florida','Utah')
+group by 1,2,3,6,7
+limit 10;
+
+
+
+--QUESTION 9--- Write a query to pull customer_id, age, city, sales,
+--profits, ship mode and ship date of transactions purchased in 2017, for all states excluding California,
+--New York and texas, city does not include null and customer’s age group of 20-60. sort the result in
+--descending order.
+
+Select 
+	customer.customer_id,
+	customer.age,
+	customer.city,
+	sales.sales,
+	sales.profit,
+	sales.ship_mode,
+	sales.ship_date
+from customer
+left join sales
+on customer.customer_id = sales.customer_id
+where order_date between '2017-01-01' and '2017-12-31'
+AND state not in ('California', 'New York', 'Texas')
+AND city IS NOT NULL
+AND age between 20 and 60
+order by age desc;
+
+
+
+---Question 10--- Write a query to show the average age of customers,
+--include their region and city and total number of orders 
+--quantities for orders purchased in 2017 for all customers excluding customers in texas. Sort by region .
+
+select 
+	AVG(customer.age) as average_age,
+	customer.region,
+	customer.city,
+	sum(sales.quantity) as total_quantity
+from customer
+left join sales 
+on customer.customer_id = sales.customer_id
+where order_date between '2017-01-01' and '2017-12-31'
+AND state not in ('Texas')
+group by 2,3
+order by region;
